@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtualenv
+.venv/
+
+# MongoDB dump/cache
+*.bson
+*.lock
+
+# Logs or temp
+*.log
+.env
+*.swp
+
+# Docker
+*.pid
+*.sock
+*.db
