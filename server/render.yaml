@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: maori-fastapi
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: MONGO_URI
+        value: mongodb+srv://maori_user:v6LhGvYxiA45P5P6@te-reo-maori-learning-a.zkmkzbi.mongodb.net/?retryWrites=true&w=majority&appName=te-reo-maori-learning-app
