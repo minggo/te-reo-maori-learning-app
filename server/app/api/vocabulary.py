@@ -8,18 +8,28 @@ router = APIRouter()
 @router.get("/", response_model=list[WordPublic])
 async def get_vocabulary(limit: int = 10, offset: int = 0):
     """
-    Get a list of Māori vocabulary entries.
+    Fetch a list of Māori vocabulary entries with circular pagination support.
 
-    - limit: maximum number of words to return (default: 10)
-    - offset: number of entries to skip before starting to return results (default: 0)
-    - If offset + limit exceeds the total count, wrap around from the start to fulfill the limit
+    Parameters:
+    - limit (int): The number of entries to return (minimum 1, default 10).
+    - offset (int): The number of entries to skip before starting. If offset exceeds
+      the total number of documents, it wraps around using modulo logic.
+
+    Behavior:
+    - If `offset + limit` goes beyond the end of the collection, the function
+      wraps around to the beginning to fulfill the full `limit` count.
+    - Uses `estimated_document_count()` for fast approximate total count.
     """
-    total = await db[COLLECTION_NAME].count_documents({})  # Get total word count
+    total = await db[COLLECTION_NAME].estimated_document_count({})  # Get total word count
+    limit = max(1, min(limit, total))  # Ensure limit is between 1 and total
+    offset = max(0, offset)  # Ensure offset is non-negative
 
     results = []
 
     if total == 0:
         return results  # Return empty list if no data
+    
+    offset = offset % total  # Wrap around offset if it exceeds total
 
     # First batch: from `offset` to the end (or up to limit)
     first_batch_size = min(limit, total - offset)
