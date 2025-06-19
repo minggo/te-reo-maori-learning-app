@@ -181,4 +181,4 @@ async def submit_quiz_result(submission: MistakeSubmission):
     await update_mistake_records(db, user_id, valid_word_ids, now)
     await save_quiz_history(db, user_id, valid_word_ids, now)
 
-    return {"message": "Quiz result recorded.", "wrong_count": len(wrong_word_ids)}
+    return {"message": "Quiz result recorded.", "wrong_count": len(valid_word_ids)}
