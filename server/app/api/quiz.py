@@ -63,16 +63,14 @@ async def get_all_english_words():
 
 def make_quiz_question(qid, word, all_english, is_review):
     """
-    Create a single QuizItem (with correct answer and 3 random distractors).
+    Create a single QuizItem with up to 3 distractors.
+    Handles cases where the pool is too small gracefully.
     """
     correct = word["english"]
-    options = set([correct])
-    distractors = random.sample(
-        [eng for eng in all_english if eng != correct],
-        min(3, len(all_english) - 1)
-    )
-    options.update(distractors)
-    options = list(options)
+    possible_distractors = [eng for eng in all_english if eng != correct]
+    num_distractors = min(3, len(possible_distractors))
+    distractors = random.sample(possible_distractors, num_distractors) if num_distractors > 0 else []
+    options = [correct] + distractors
     random.shuffle(options)
     return QuizItem(
         id=qid,
