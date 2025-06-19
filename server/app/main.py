@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from app.api import vocabulary
+from app.api import quiz
 from app.scripts.import_words import import_words_if_empty
 
 @asynccontextmanager
@@ -22,4 +23,10 @@ app.include_router(
     vocabulary.router,
     prefix="/vocabulary",
     tags=["Vocabulary"]
+)
+
+app.include_router(
+    quiz.router,
+    prefix="/quiz",
+    tags=["Quiz"]
 )
