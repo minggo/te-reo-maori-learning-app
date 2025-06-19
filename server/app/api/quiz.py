@@ -104,12 +104,10 @@ async def get_quiz(user_id: str = "anonymous", limit: int = 10):
 
     quiz_questions = []
     for qid in candidate_ids:
-        word = id2_word.get(qid)
-        if not word:
-            continue
-        quiz_questions.append(
-            make_quiz_question(qid, word, all_english, is_review=(qid in wrong_ids))
-        )
+        if word := id2_word.get(qid):
+            quiz_questions.append(
+                make_quiz_question(qid, word, all_english, is_review=(qid in wrong_ids))
+            )
     return quiz_questions
     
 async def filter_valid_word_ids(db, word_ids):
