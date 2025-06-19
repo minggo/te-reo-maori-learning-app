@@ -21,7 +21,7 @@ class QuizItem(BaseModel):
     Fields:
     - id (str): MongoDB ObjectId as string.
     - maori (str): Māori word.
-    - opitons List[str]: List of possible answer choices for this quiz item. The correct answer is included in this list.
+    - options List[str]: List of possible answer choices for this quiz item. The correct answer is included in this list.
     - answer (str): The correct answer for this word.
     - is_review (bool): True if this word was previously answered incorrectly by the user (i.e., is a review word).
     """
