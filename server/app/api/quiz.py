@@ -113,11 +113,15 @@ async def get_quiz(user_id: str = "anonymous", limit: int = 10):
     return quiz_questions
     
 async def filter_valid_word_ids(db, word_ids):
-    existing = await db[COLLECTION_NAME].find(
-        {"_id": {"$in": word_ids}},
+    """
+    Ensure all IDs are ObjectId, and only return those that exist in DB.
+    """
+    object_ids = [ObjectId(i) if not isinstance(i, ObjectId) else i for i in word_ids]
+    existing = await db["words"].find(
+        {"_id": {"$in": object_ids}},
         {"_id": 1}
     ).to_list(None)
-    return [doc["_id"] for doc in existing]
+    return [str(doc["_id"]) for doc in existing]
 
 async def update_mistake_records(db, user_id, valid_word_ids, now):
     for word_id in valid_word_ids:
