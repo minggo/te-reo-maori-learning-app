@@ -1,3 +1,15 @@
+name: CI Server
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+
 jobs:
   test_server:
     runs-on: ubuntu-latest
@@ -13,12 +25,14 @@ jobs:
       MONGO_URI: mongodb://localhost:27017
       DB_NAME: te_reo_test_db
 
+    # Every `run:` step will execute from the `server/` directory
     defaults:
       run:
         working-directory: server
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
