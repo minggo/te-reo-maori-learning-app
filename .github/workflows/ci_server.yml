@@ -2,11 +2,13 @@ name: CI Server
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'server/**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'server/**'
 
@@ -28,7 +30,7 @@ jobs:
     env:
       FASTAPI_ENV: test
       MONGO_URI: mongodb://localhost:27017
-      DB_NAME: te_reo_maori
+      DB_NAME: te_reo_test_db
 
     steps:
       - name: Checkout code
@@ -47,9 +49,11 @@ jobs:
 
       - name: Wait for MongoDB to be ready
         run: |
-          until python - <<'EOF'
-import os, pymongo
-pymongo.MongoClient(os.getenv("MONGO_URI")).admin.command("ping")
+          until python - <<EOF
+import os
+import pymongo
+client = pymongo.MongoClient(os.environ["MONGO_URI"])
+client.admin.command("ping")
 print("MongoDB is up ✓")
 EOF
           do
