@@ -23,7 +23,7 @@ jobs:
     env:
       FASTAPI_ENV: test
       MONGO_URI: mongodb://localhost:27017
-      DB_NAME: te_reo_test_db
+      DB_NAME: te_reo_maori
 
     # Every `run:` step will execute from the `server/` directory
     defaults:
