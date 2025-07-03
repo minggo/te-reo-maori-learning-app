@@ -11,3 +11,4 @@ iniconfig==2.1.0       # pytest dependency
 pluggy==1.6.0          # pytest dependency
 python-dateutil==2.9.0.post0  # for any date parsing in tests or seed scripts
 Pygments==2.19.2       # syntax highlighting in docs or CI reporting
+pymongo==4.13.2

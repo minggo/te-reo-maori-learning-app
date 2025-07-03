@@ -2,24 +2,17 @@ name: CI Server
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
     paths:
       - 'server/**'
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
     paths:
       - 'server/**'
 
 jobs:
   test_server:
     runs-on: ubuntu-latest
-
-    # All `run:` steps will execute from the `server/` directory
-    defaults:
-      run:
-        working-directory: server
 
     services:
       mongo:
@@ -31,6 +24,10 @@ jobs:
       FASTAPI_ENV: test
       MONGO_URI: mongodb://localhost:27017
       DB_NAME: te_reo_test_db
+
+    defaults:
+      run:
+        working-directory: server
 
     steps:
       - name: Checkout code
@@ -48,18 +45,7 @@ jobs:
           pip install -r requirements.txt -r dev-requirements.txt
 
       - name: Wait for MongoDB to be ready
-        run: |
-          until python - <<EOF
-import os
-import pymongo
-client = pymongo.MongoClient(os.environ["MONGO_URI"])
-client.admin.command("ping")
-print("MongoDB is up ✓")
-EOF
-          do
-            echo "Waiting for MongoDB…"
-            sleep 2
-          done
+        run: python scripts/wait_for_mongo.py
 
       - name: Run tests
         run: pytest -q --disable-warnings --maxfail=1
