@@ -1,0 +1,13 @@
+-r requirements.txt
+pytest==8.4.1
+pytest-asyncio==1.0.0
+pytest-env==1.1.5
+python-dotenv==1.1.0   # for loading your .env.testing
+httpx==0.28.1          # for AsyncClient in tests
+httpcore==1.0.9        # httpx’s HTTP engine
+idna==3.10             # httpx/httpcore dependency
+sniffio==1.3.1         # anyio/httpx dependency
+iniconfig==2.1.0       # pytest dependency
+pluggy==1.6.0          # pytest dependency
+python-dateutil==2.9.0.post0  # for any date parsing in tests or seed scripts
+Pygments==2.19.2       # syntax highlighting in docs or CI reporting
