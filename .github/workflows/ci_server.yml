@@ -11,20 +11,17 @@ on:
       - 'server/**'
 
 jobs:
-  test:
+  test_server:
     runs-on: ubuntu-latest
     services:
       mongo:
         image: mongo:4.4
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
-          --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
       MONGO_URI: mongodb://localhost:27017
-      DB_NAME: te_reo_test_db
+      DB_NAME: te_reo_maori
 
     steps:
       - name: Checkout code
@@ -49,9 +46,9 @@ jobs:
           pip install -e ".[dev]"
           pip install pytest pytest-asyncio pytest-env pytest-dotenv
 
-      - name: Wait for MongoDB to be healthy
+      - name: Wait for MongoDB to be ready
         run: |
-          until mongosh --quiet --eval "db.adminCommand({ ping: 1 })"; do
+          until mongo --quiet --eval "db.adminCommand({ ping: 1 })"; do
             echo "Waiting for MongoDB…"
             sleep 2
           done
