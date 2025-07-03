@@ -28,7 +28,7 @@ async def test_get_vocabulary_wraps_to_start_when_offset_exceeds_length(client, 
     assert r.status_code == 200
 
     body = r.json()
-    assert len(body) != limit
+    assert len(body) == limit
 
     for i in range(limit):
         expected_index = (offset + i) % total
