@@ -1,16 +1,15 @@
-import json
 import os
-import sys
 import pytest_asyncio
 from bson import ObjectId
 from httpx import AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from httpx._transports.asgi import ASGITransport
-from pathlib import Path
+from app.data.loader import load_words_from_file
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+
+# ROOT = Path(__file__).resolve().parent.parent
+# if str(ROOT) not in sys.path:
+#     sys.path.insert(0, str(ROOT))
 
 from app.main import app
 from app.constants import COLLECTION_NAME
@@ -42,9 +41,7 @@ async def client():
 
 @pytest_asyncio.fixture
 async def seed_data(db_client):
-    data_file = ROOT / "app" / "data" / "words.json"
-    with open(data_file, encoding="utf-8") as f:
-        words = json.load(f)
+    words = load_words_from_file()
 
     docs = []
     for w in words:
