@@ -7,7 +7,7 @@ async def test_get_vocabulary_empty(clear_test_db, client):
     assert r.json() == []
 
 @pytest.mark.asyncio
-async def test_get_vaocabulary_from_file(client, seed_data):
+async def test_get_vocabulary_from_file(client, seed_data):
     r = await client.get("/vocabulary/", params={"limit": 5, "offset": 0})
     assert r.status_code == 200
 
