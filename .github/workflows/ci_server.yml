@@ -1,4 +1,4 @@
-name: CI
+name: CI Server
 
 on:
   push:
@@ -11,51 +11,51 @@ on:
       - 'server/**'
 
 jobs:
-  test:
+  test_server:
     runs-on: ubuntu-latest
+
     services:
       mongo:
         image: mongo:4.4
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
-          --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
+      FASTAPI_ENV: test
       MONGO_URI: mongodb://localhost:27017
-      DB_NAME: te_reo_test_db
+      DB_NAME: te_reo_maori
+
+    # Every `run:` step will execute from the `server/` directory
+    defaults:
+      run:
+        working-directory: server
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-          pip install pytest pytest-asyncio pytest-env pytest-dotenv
+          pip install --upgrade pip
+          pip install -r requirements.txt -r dev-requirements.txt
 
-      - name: Wait for MongoDB to be healthy
+      - name: Wait for MongoDB to be ready
         run: |
-          until mongosh --quiet --eval "db.adminCommand({ ping: 1 })"; do
+          until python - <<'EOF'
+import os, pymongo
+pymongo.MongoClient(os.getenv("MONGO_URI")).admin.command("ping")
+print("MongoDB is up ✓")
+EOF
+          do
             echo "Waiting for MongoDB…"
             sleep 2
           done
 
       - name: Run tests
-        run: |
-          pytest -q --disable-warnings --maxfail=1
+        run: pytest -q --disable-warnings --maxfail=1
