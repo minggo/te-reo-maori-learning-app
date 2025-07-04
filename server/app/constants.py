@@ -1,3 +1,4 @@
 COLLECTION_NAME = "words"
 COLLECTION_USER_MISTAKES = "user_mistakes"
 COLLECTION_QUIZ_HISTORY = "quiz_history"
+COLLECTION_USER_LEARNED = "user_learned"
