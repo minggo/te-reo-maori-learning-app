@@ -80,7 +80,7 @@ def make_quiz_question(qid, word, all_english, is_review):
         is_review=is_review
     )
 
-@router.get("/quiz", response_model=List[QuizItem])
+@router.get("/", response_model=List[QuizItem])
 async def get_quiz(user_id: str = "anonymous", limit: int = 10):
     """
     Get a quiz with multiple-choice questions (4 options per Māori word).
