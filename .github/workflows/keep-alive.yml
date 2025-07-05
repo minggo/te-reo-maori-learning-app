@@ -19,4 +19,4 @@ jobs:
             echo "⚠️ Ping failed, status code: $HTTP_CODE"
             exit 1
           fi
-          echo "✅ Ping succeeded (200)"
+          echo "Ping succeeded (200)"
