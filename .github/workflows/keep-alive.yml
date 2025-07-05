@@ -12,7 +12,7 @@ jobs:
       - name: Curl Render service health endpoint
         run: |
           set -euo pipefail
-          URL="https://te-reo-maori-learning-app.onrender.com/health"
+          URL="https://te-reo-maori-learning-app.onrender.com"
           echo "Pinging $URL …"
           HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$URL")
           if [[ "$HTTP_CODE" -ne 200 ]]; then
