@@ -1,0 +1,22 @@
+name: Keep Alive Ping
+
+# Trigger every 5 minutes
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl Render service health endpoint
+        run: |
+          set -euo pipefail
+          URL="https://te-reo-maori-learning-app.onrender.com/health"
+          echo "Pinging $URL …"
+          HTTP_CODE=$(curl -o /dev/null -s -w "%{http_code}" "$URL")
+          if [[ "$HTTP_CODE" -ne 200 ]]; then
+            echo "⚠️ Ping failed, status code: $HTTP_CODE"
+            exit 1
+          fi
+          echo "✅ Ping succeeded (200)"
