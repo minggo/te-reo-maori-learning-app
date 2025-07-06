@@ -1,8 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+from app.core.config import settings
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DB_NAME = "te_reo_maori"
-
-client = AsyncIOMotorClient(MONGO_URI)
-db = client[DB_NAME]
+client = AsyncIOMotorClient(settings.MONGO_URI)
+db = client[settings.DB_NAME]
