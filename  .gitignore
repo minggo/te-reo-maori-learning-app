@@ -1,0 +1,2 @@
+# 忽略所有子目录的 node_modules
+**/node_modules/
