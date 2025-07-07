@@ -1,38 +1,106 @@
+/* src/App.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 .App {
+  background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+.app-header {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.btn {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #333333;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #f0f0f0;
+}
+
+.btn-learn { background: #4caf50; color: white; }
+.btn-learn:hover { background: #43a047; }
+
+.btn-profile { background: #2196f3; color: white; }
+.btn-profile:hover { background: #1e88e5; }
+
+.quiz-card {
+  background: #2196f3;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  color: white;
+  width: 90%; max-width: 480px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.quiz-header {
+  display: flex; justify-content: space-between; align-items: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.progress { font-size: 1.2rem; }
+
+timer { font-size: 1rem; margin-bottom: 0.5rem; }
+
+.maori-word { font-size: 2rem; margin: 1rem 0; }
+
+.choices { display: flex; flex-direction: column; gap: 1rem; }
+
+.choice {
+  background: #ffffff;
+  color: #333333;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.choice:hover { background: #f1f1f1; }
+.choice.selected { background: #1976d2; color: white; }
+
+.feedback { margin-top: 1.5rem; }
+
+.btn-next {
+  margin-top: 1rem;
+  background: #ffffff;
+  color: #2196f3;
+}
+.btn-next:hover { background: #e3f2fd; }
+
+.results-card {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  text-align: center;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.results-card h1 { color: #2e7d32; margin-bottom: 1rem; }
+
+.btn-restart {
+  margin-top: 1rem;
+  background: #4caf50;
   color: white;
 }
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+.btn-restart:hover { background: #43a047; }

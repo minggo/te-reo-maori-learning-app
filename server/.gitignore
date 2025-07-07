@@ -9,7 +9,7 @@ __pycache__/
 # MongoDB dump/cache
 *.bson
 *.lock
-
+**/node_modules/
 # Logs or temp
 *.log
 *.swp

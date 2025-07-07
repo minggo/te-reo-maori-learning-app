@@ -1,17 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import LearnPage from './LearnPage';
+import ProfilePage from './ProfilePage';
+import LoginPage from './LoginPage';
+import RegisterPage from './RegisterPage';
+import RequireAuth from './RequireAuth';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+  <BrowserRouter>
+    <Routes>
+      {/* 公共路由 */}
+      <Route path="login" element={<LoginPage />} />
+      <Route path="register" element={<RegisterPage />} />
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+      {/* 受保护路由组 （pathless） */}
+      <Route element={<RequireAuth />}>
+        {/* 根路由 */}
+        <Route index element={<LoginPage />} />
+        {/* 相对子路由 */}
+        <Route path="learn" element={<LearnPage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      </Route>
+
+      {/* 兜底：未匹配的全部重定向到 /login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
+  </BrowserRouter>
+);

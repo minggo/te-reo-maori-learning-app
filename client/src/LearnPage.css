@@ -1,0 +1,41 @@
+.LearnPage {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.LearnPage h1 {
+  color: #2c3e50;
+}
+
+.LearnPage p {
+  margin: 1rem 0;
+}
+
+.LearnPage ul {
+  list-style: none;
+  padding: 0;
+}
+
+.LearnPage li {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.LearnPage button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.LearnPage button:hover {
+  background-color: #2980b9;
+}
