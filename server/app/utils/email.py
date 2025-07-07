@@ -2,7 +2,6 @@ import smtplib
 from smtplib import SMTPAuthenticationError, SMTPConnectError, SMTPException
 from email.message import EmailMessage
 from app.core.config import settings
-from fastapi import HTTPException
 
 def send_verification_email(to_email: str, code: str) -> None:
     """
@@ -21,10 +20,10 @@ def send_verification_email(to_email: str, code: str) -> None:
             smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             smtp.send_message(msg)
     except SMTPAuthenticationError as e:
-        raise HTTPException(status_code=500, detail="SMTP authentication failed")
+        print(f"SMTP auth failed: {e}")
     except SMTPConnectError as e:
-        raise HTTPException(status_code=500, detail="Failed to connect to SMTP server")
+        print(f"SMTP connection failed: {e}")
     except SMTPException as e:
-        raise HTTPException(status_code=500, detail=f"SMTP error: {str(e)}")
+        print(f"SMTP error occurred: {e}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        print(f"Unexpected error during sending email: {e}")

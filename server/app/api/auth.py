@@ -64,8 +64,8 @@ async def register(
             "expires_at": expires,
             "created_at": datetime.utcnow(),
         })
-    except DuplicateKeyError:
-        raise HTTPException(status_code=400, detail="Username or email already exists")
+    except DuplicateKeyError as e:
+        raise HTTPException(status_code=400, detail="Username or email already exists") from e
 
     # 4) queue email send
     background_tasks.add_task(send_verification_email, req.email, code)
