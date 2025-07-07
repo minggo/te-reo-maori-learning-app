@@ -10,6 +10,7 @@ from app.constants import COLLECTION_USERS, COLLECTION_CODES
 from app.schema.auth import (
     RegisterRequest, RegisterResponse,
     VerifyRequest, VerifyResponse,
+    LoginRequest, LoginResponse,
 )
 from app.core.config import settings
 from app.utils.email import send_verification_email
@@ -98,3 +99,24 @@ async def verify(req: VerifyRequest):
     await coll.delete_one({"_id": record["_id"]})
 
     return {"detail": "Email verified successfully"}
+
+@router.post("/login", response_model=LoginResponse)
+async def login(req: LoginRequest):
+    """
+    1) Look up user by email.
+    2) Reject if user not found or email not verified.
+    3) Check password using bcrypt.
+    4) Return success message (or token in future).
+    """
+    user = await db[COLLECTION_USERS].find_one({"email": req.email})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    if not user.get("email_verified", False):
+        raise HTTPException(status_code=403, detail="Email not verified")
+
+    print(f"hash password is: {user['password_hash']}")
+    if not pwd_ctx.verify(req.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    return {"detail": "Login successful"}
