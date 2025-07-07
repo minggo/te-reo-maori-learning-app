@@ -115,7 +115,6 @@ async def login(req: LoginRequest):
     if not user.get("email_verified", False):
         raise HTTPException(status_code=403, detail="Email not verified")
 
-    print(f"hash password is: {user['password_hash']}")
     if not pwd_ctx.verify(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
