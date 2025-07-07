@@ -1,14 +1,16 @@
 /* src/App.jsx */
 import React, { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './App.css';
 
 function App() {
+  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [choices, setChoices] = useState([]);
   const [selected, setSelected] = useState('');
   const [score, setScore] = useState(0);
+  const [wrongWordIds, setWrongWordIds] = useState([]);           // ①
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
   const [timer, setTimer] = useState(20);
@@ -17,22 +19,20 @@ function App() {
 
   // 拉取题目
   useEffect(() => {
-    async function fetchAll() {
+    (async () => {
       try {
         const res = await fetch('/quiz/?user_id=anonymous&limit=10');
         const data = await res.json();
-        const list = Array.isArray(data) ? data : [data];
-        setQuestions(list);
+        setQuestions(Array.isArray(data) ? data : [data]);
       } catch (e) {
         console.error(e);
       }
-    }
-    fetchAll();
+    })();
   }, []);
 
   // 切换题目时初始化
   useEffect(() => {
-    if (questions.length === 0) return;
+    if (!questions.length) return;
     const q = questions[current];
     setChoices(shuffleArray(q.options));
     setSelected('');
@@ -44,35 +44,56 @@ function App() {
 
   // 倒计时逻辑
   useEffect(() => {
-    if (questions.length === 0 || showFeedback || finished) return;
-    timerRef.current = setInterval(() => {
-      setTimer(prev => prev - 1);
-    }, 1000);
+    if (!questions.length || showFeedback || finished) return;
+    timerRef.current = setInterval(() => setTimer(t => t - 1), 1000);
     return () => clearInterval(timerRef.current);
   }, [showFeedback, finished, questions]);
 
-  // 时间结束处理: 自动挪到下一题
+  // 时间结束处理
   useEffect(() => {
-    if (timer <= 0 && !showFeedback && questions.length > 0) {
+    if (timer <= 0 && !showFeedback && questions.length) {
       clearInterval(timerRef.current);
-      const correct = questions[current].answer;
+      const q = questions[current];
       setShowFeedback(true);
-      setFeedback(`⏰ Time's up! Answer: ${correct}`);
-      recordStats(false);
-      setTimeout(() => {
-        if (current + 1 < questions.length) {
-          setCurrent(prev => prev + 1);
-        } else {
-          setFinished(true);
-        }
-      }, 1000);
+      setFeedback(`⏰ Time's up! Answer: ${q.answer}`);
+      recordStats(false, q.id);                      // ②
+      setTimeout(() => advanceOrFinish(), 1000);
     }
-  }, [timer, showFeedback, questions, current]);
+  }, [timer]);
 
-  const recordStats = (isCorrect) => {
-    const stats = JSON.parse(localStorage.getItem('quizStats') || '{"total":0,"correct":0}');
+  // 监听 finished，一旦完成，提交错题并跳转
+  useEffect(() => {
+    if (finished) {
+      (async () => {
+        try {
+          await fetch('/quiz/feedback', {             // ③ 根据实际接口改路径
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: 'anonymous',
+              wrong_word_ids: wrongWordIds
+            })
+          });
+        } catch (e) {
+          console.error('Failed to submit feedback:', e);
+        } finally {
+          navigate('/profile');                      // ④
+        }
+      })();
+    }
+  }, [finished]);
+
+  // 记录统计及错题
+  const recordStats = (isCorrect, wordId) => {
+    const stats = JSON.parse(localStorage.getItem('quizStats') 
+      || '{"total":0,"correct":0}');
     stats.total += 1;
-    if (isCorrect) stats.correct += 1;
+    if (isCorrect) {
+      stats.correct += 1;
+      setScore(s => s + 1);
+    } else {
+      setWrongWordIds(ids => [...ids, wordId]);    // ⑤
+    }
     localStorage.setItem('quizStats', JSON.stringify(stats));
   };
 
@@ -81,45 +102,26 @@ function App() {
     clearInterval(timerRef.current);
     setSelected(choice);
     setShowFeedback(true);
-    const correct = questions[current].answer;
-    const isCorrect = choice === correct;
-    if (isCorrect) {
-      setScore(prev => prev + 1);
-      setFeedback('✅ Correct!');
-    } else {
-      setFeedback(`❌ Wrong! Answer: ${correct}`);
-    }
-    recordStats(isCorrect);
+    const q = questions[current];
+    const isCorrect = choice === q.answer;
+    setFeedback(isCorrect ? '✅ Correct!' : `❌ Wrong! Answer: ${q.answer}`);
+    recordStats(isCorrect, q.id);                   // ⑥
   };
 
-  const nextQuestion = () => {
+  const advanceOrFinish = () => {
     if (current + 1 < questions.length) {
-      setCurrent(prev => prev + 1);
+      setCurrent(c => c + 1);
     } else {
       setFinished(true);
     }
   };
 
-  if (questions.length === 0) {
+  if (!questions.length) {
     return <div className="App">Loading quiz...</div>;
   }
-
   if (finished) {
-    const total = questions.length;
-    const errors = total - score;
-    const errorRate = ((errors / total) * 100).toFixed(1);
-    return (
-      <div className="App">
-        <div className="results-card">
-          <h1>🎉 Quiz Complete!</h1>
-          <p>Your Score: {score}/{total}</p>
-          <p>Error Rate: {errorRate}%</p>
-          <button onClick={() => window.location.reload()} className="btn btn-restart">
-            Restart Quiz
-          </button>
-        </div>
-      </div>
-    );
+    // 渲染空页面，useEffect 会处理提交并跳转
+    return null;
   }
 
   const q = questions[current];
@@ -149,7 +151,7 @@ function App() {
         {showFeedback && (
           <div className="feedback">
             <p>{feedback}</p>
-            <button onClick={nextQuestion} className="btn btn-next">
+            <button onClick={advanceOrFinish} className="btn btn-next">
               {current + 1 < questions.length ? 'Next' : 'Finish'}
             </button>
           </div>
@@ -159,7 +161,7 @@ function App() {
   );
 }
 
-// 工具函数：打乱数组
+// 工具：打乱数组
 function shuffleArray(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }

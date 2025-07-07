@@ -20,7 +20,7 @@ root.render(
       {/* 受保护路由组 （pathless） */}
       <Route element={<RequireAuth />}>
         {/* 根路由 */}
-        <Route index element={<LoginPage />} />
+        <Route index element={<App />} />
         {/* 相对子路由 */}
         <Route path="learn" element={<LearnPage />} />
         <Route path="profile" element={<ProfilePage />} />

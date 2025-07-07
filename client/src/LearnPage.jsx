@@ -42,9 +42,16 @@ function LearnPage() {
           </li>
         ))}
       </ul>
-      <Link to="/">
-        <button>⬅ Back to Quiz</button>
-      </Link>
+
+      {/* 操作按钮组 */}
+      <section className="button-group">
+        <Link to="/">
+          <button>🎯 Start Quiz</button>
+        </Link>
+        <Link to="/profile">
+          <button>👤 Profile</button>
+        </Link>
+      </section>
     </div>
   );
 }

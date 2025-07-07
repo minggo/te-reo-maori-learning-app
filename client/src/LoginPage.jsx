@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -13,21 +13,19 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      const res = await fetch(
-        "/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const res = await fetch("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.detail || "Login failed");
+        throw new Error(data.detail || "Login failed");
       }
-      const { access_token } = await res.json();
-      localStorage.setItem("token", access_token);
-      // 登录成功，跳转到个人信息页
+      // 用 user_id 作为“token”
+      const { user_id } = data;
+      localStorage.setItem("user_id", user_id);
+      // 登录后跳转
       navigate("/profile");
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
@@ -37,15 +35,15 @@ export default function LoginPage() {
   return (
     <div className="LoginPage">
       <div className="login-card">
-        <h1>🔐 Email Login</h1>
+        <h1>🔐 Username Login</h1>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleLogin} className="login-form">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="username">Username</label>
           <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
 
@@ -58,7 +56,9 @@ export default function LoginPage() {
             required
           />
 
-          <button type="submit" className="btn btn-login">Login</button>
+          <button type="submit" className="btn btn-login">
+            Login
+          </button>
         </form>
         <div className="bottom-link">
           <Link to="/register">Don't have an account? Register</Link>

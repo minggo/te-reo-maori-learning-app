@@ -1,16 +1,17 @@
-/*
-File: src/ProfilePage.css
-*/
+/* src/ProfilePage.css */
+
 .ProfilePage {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f7fa;
+  font-family: "Segoe UI", sans-serif;
+  background: #f5f7fa;
   min-height: 100vh;
   padding: 2rem;
 }
+
 .ProfilePage h1 {
   color: #2c3e50;
   margin-bottom: 1rem;
 }
+
 .section {
   background: white;
   border: 1px solid #ddd;
@@ -18,26 +19,47 @@ File: src/ProfilePage.css
   padding: 1rem;
   margin-bottom: 1.5rem;
 }
+
 .section h2 {
   margin-top: 0;
   color: #34495e;
 }
-.section ul {
+
+.section ul,
+.section ol {
   list-style: none;
   padding: 0;
 }
-.section li {
-  padding: 0.25rem 0;
-}
-.ProfilePage button {
-  padding: 0.5rem 1rem;
-  background-color: #3498db;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-}
-.ProfilePage button:hover {
-  background-color: #2980b9;
+
+.section ol {
+  list-style: decimal inside;
+  text-align: left;
 }
 
+.section li {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* 新增：按钮组样式 */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.button-group button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2196f3;
+  color: white;
+  transition: background 0.2s;
+}
+
+.button-group button:hover {
+  background: #1e88e5;
+}
