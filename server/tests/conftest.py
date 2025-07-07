@@ -14,8 +14,9 @@ from tests.dummy_smtp import DummySMTP
 
 @pytest.fixture(autouse=True)
 def stub_hash(monkeypatch):
-    # force all hashes to a known constant so you don't need bcrypt in tests
-    monkeypatch.setattr("app.api.auth.hash_password", lambda pw: "<<hashed>>")
+    # return unhashed password so you don't need bcrypt in tests
+    monkeypatch.setattr("app.api.auth.hash_password", lambda pw: pw)
+    monkeypatch.setattr("app.api.auth.pwd_ctx.verify", lambda raw, hashed: hashed == raw)
 
 @pytest.fixture(autouse=True)
 def reset_and_patch_smtp(monkeypatch):
