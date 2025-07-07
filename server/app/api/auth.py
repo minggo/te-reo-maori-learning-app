@@ -15,7 +15,7 @@ from app.schema.auth import (
 from app.core.config import settings
 from app.utils.email import send_verification_email
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Helper to hash passwords
