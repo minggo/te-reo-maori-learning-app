@@ -18,8 +18,13 @@ services:
       - mongo
     environment:
       - MONGO_URI=mongodb://mongo:27017
+      - SMTP_HOST=smtp.your.com
+      - SMTP_USER=you@your.com
+      - SMTP_PASSWORD=secret
+      - SMTP_SENDER=you@your.com
     volumes:
       - .:/app
+      - ../client:/client
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 volumes:
