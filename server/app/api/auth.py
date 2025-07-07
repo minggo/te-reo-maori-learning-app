@@ -43,7 +43,7 @@ async def register(
     if existing:
         raise HTTPException(status_code=400, detail="Username or email already exists")
 
-    # 2) insert user
+    # 2) insert user and generate verification code
     user = {
         "username": req.username,
         "password_hash": hash_password(req.password),
@@ -54,19 +54,18 @@ async def register(
     try:
         res = await uc.insert_one(user)
         user_id = res.inserted_id
+
+        code = secrets.token_hex(3)  # 6 hex chars
+        expires = datetime.utcnow() + timedelta(minutes=settings.VERIFICATION_CODE_EXPIRE_MINUTES)
+        await db[COLLECTION_CODES].insert_one({
+            "user_id": user_id,
+            "email": req.email,
+            "code": code,
+            "expires_at": expires,
+            "created_at": datetime.utcnow(),
+        })
     except DuplicateKeyError:
         raise HTTPException(status_code=400, detail="Username or email already exists")
-
-    # 3) generate & store code
-    code = secrets.token_hex(3)  # 6 hex chars
-    expires = datetime.utcnow() + timedelta(minutes=settings.VERIFICATION_CODE_EXPIRE_MINUTES)
-    await db[COLLECTION_CODES].insert_one({
-        "user_id": user_id,
-        "email": req.email,
-        "code": code,
-        "expires_at": expires,
-        "created_at": datetime.utcnow(),
-    })
 
     # 4) queue email send
     background_tasks.add_task(send_verification_email, req.email, code)

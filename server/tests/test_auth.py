@@ -1,7 +1,7 @@
 import pytest
 from app.constants import COLLECTION_USERS, COLLECTION_CODES
-from bson.objectid import ObjectId
 from app.core.config import settings
+from pymongo.errors import DuplicateKeyError
 
 @pytest.mark.asyncio
 async def test_register_and_verify_flow(client, db_client, clear_test_db):
@@ -64,3 +64,37 @@ async def test_register_duplicate_username(client, db_client):
 
     assert r.status_code == 400
     assert r.json()["detail"] == "Username or email already exists"
+
+@pytest.mark.asyncio
+async def test_register_with_duplicate_email(client, db_client, clear_test_db):
+    # Step 1: Register a new user (initial registration)
+    payload = {
+        "username": "testuser1",
+        "email": "test@example.com",
+        "password": "securepassword123"
+    }
+
+    response = await client.post("/auth/register", json=payload)
+    assert response.status_code == 201  # First registration should succeed
+
+    # Step 2: Attempt to register again with the same email (different username)
+    duplicate_payload = {
+        "username": "testuser2",              # New username
+        "email": "test@example.com",          # Same email as before
+        "password": "anotherpassword456"
+    }
+
+    response = await client.post("/auth/register", json=duplicate_payload)
+
+    # Step 3: Expect a 400 error due to duplicate email
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Username or email already exists"
+
+    # Step 4: Ensure only one user with the email exists in the database
+    users = await db_client[settings.DB_NAME]["users"].find({"email": "test@example.com"}).to_list(length=10)
+    assert len(users) == 1  # No additional user should be created
+
+    # Step 5: Ensure only one verification code was created
+    codes = await db_client[settings.DB_NAME][COLLECTION_CODES].find({"email": "test@example.com"}).to_list(length=10)
+    assert len(codes) == 1  # No duplicate verification code should be inserted
+
