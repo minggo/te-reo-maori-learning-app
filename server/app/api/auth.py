@@ -103,19 +103,22 @@ async def verify(req: VerifyRequest):
 @router.post("/login", response_model=LoginResponse)
 async def login(req: LoginRequest):
     """
-    1) Look up user by email.
+    1) Look up user by user id.
     2) Reject if user not found or email not verified.
     3) Check password using bcrypt.
     4) Return success message (or token in future).
     """
-    user = await db[COLLECTION_USERS].find_one({"email": req.email})
+    user = await db[COLLECTION_USERS].find_one({"username": req.username})
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
     if not user.get("email_verified", False):
         raise HTTPException(status_code=403, detail="Email not verified")
 
     if not pwd_ctx.verify(req.password, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    return {"detail": "Login successful"}
+    return {
+        "detail": "Login successful",
+        "user_id": str(user["_id"]),
+    }

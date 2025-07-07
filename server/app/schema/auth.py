@@ -16,8 +16,9 @@ class VerifyResponse(BaseModel):
     detail: str
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 class LoginResponse(BaseModel):
     detail: str
+    user_id: str

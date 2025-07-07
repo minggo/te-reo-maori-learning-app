@@ -18,18 +18,20 @@ async def test_login_success(client, db_client, clear_test_db):
 
     # Step 2: Manually verify user in DB (simulate email verification)
     users = db_client[settings.DB_NAME][COLLECTION_USERS]
-    user = await users.find_one({"email": "test@example.com"})
+    user = await users.find_one({"username": "testuser"})
     assert user is not None
     await users.update_one({"_id": user["_id"]}, {"$set": {"email_verified": True}})
 
     # Step 3: Login with verified user
     login_payload = {
-        "email": "test@example.com",
+        "username": "testuser",
         "password": "securepassword123"
     }
     res = await client.post("/auth/login", json=login_payload)
     assert res.status_code == 200
-    assert res.json()["detail"] == "Login successful"
+    body = res.json()
+    assert body["detail"] == "Login successful"
+    assert body["user_id"] == str(user["_id"])
 
 
 @pytest.mark.asyncio
@@ -45,7 +47,7 @@ async def test_login_fails_if_email_not_verified(client: AsyncClient, db_client,
 
     # Attempt login
     login_payload = {
-        "email": "unverified@example.com",
+        "username": "unverified_user",
         "password": "password123"
     }
     res = await client.post("/auth/login", json=login_payload)
@@ -65,14 +67,14 @@ async def test_login_fails_with_wrong_password(client, db_client, clear_test_db)
     assert res.status_code == 201
 
     users = db_client[settings.DB_NAME][COLLECTION_USERS]
-    user = await users.find_one({"email": "wrongpass@example.com"})
+    user = await users.find_one({"username": "wrongpassuser"})
     await users.update_one({"_id": user["_id"]}, {"$set": {"email_verified": True}})
 
     # Try wrong password
     login_payload = {
-        "email": "wrongpass@example.com",
+        "username": "wrongpassuser",
         "password": "wrongpass"
     }
     res = await client.post("/auth/login", json=login_payload)
     assert res.status_code == 401
-    assert res.json()["detail"] == "Invalid email or password"
+    assert res.json()["detail"] == "Invalid username or password"
