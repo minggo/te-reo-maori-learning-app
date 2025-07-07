@@ -14,3 +14,10 @@ class RegisterResponse(BaseModel):
 
 class VerifyResponse(BaseModel):
     detail: str
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class LoginResponse(BaseModel):
+    detail: str
