@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from passlib.context import CryptContext
+from pymongo.errors import DuplicateKeyError
 
 from app.db.mongodb import db
 from app.constants import COLLECTION_USERS, COLLECTION_CODES
@@ -38,10 +39,9 @@ async def register(
     uc = db[COLLECTION_USERS]
 
     # 1) uniqueness checks
-    if await uc.find_one({"username": req.username}):
-        raise HTTPException(status_code=400, detail="Username already exists")
-    if await uc.find_one({"email": req.email}):
-        raise HTTPException(status_code=400, detail="Email already registered")
+    existing = await uc.find_one({"$or": [{"username": req.username}, {"email": req.email}]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
 
     # 2) insert user
     user = {
@@ -51,8 +51,11 @@ async def register(
         "email_verified": False,
         "created_at": datetime.utcnow(),
     }
-    res = await uc.insert_one(user)
-    user_id = res.inserted_id
+    try:
+        res = await uc.insert_one(user)
+        user_id = res.inserted_id
+    except DuplicateKeyError:
+        raise HTTPException(status_code=400, detail="Username or email already exists")
 
     # 3) generate & store code
     code = secrets.token_hex(3)  # 6 hex chars
