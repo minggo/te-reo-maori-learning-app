@@ -1,9 +1,10 @@
 // src/ProfilePage.jsx
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./ProfilePage.css";
 
 function ProfilePage() {
+  const navigate = useNavigate();
   const [viewedWords, setViewedWords] = useState([]);
   const [masteredWords, setMasteredWords] = useState([]);
   const [quizStats, setQuizStats] = useState({ total: 0, correct: 0 });
@@ -31,6 +32,14 @@ function ProfilePage() {
     quizStats.total > 0
       ? ((quizStats.correct / quizStats.total) * 100).toFixed(1)
       : "N/A";
+
+  const handleLogout = () => {
+    // 清除登录信息
+    localStorage.removeItem("user_id");
+    // 也可清除其他缓存
+    // localStorage.removeItem("token");
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="ProfilePage">
@@ -88,7 +97,7 @@ function ProfilePage() {
         )}
       </section>
 
-      {/* 新增操作按钮 */}
+      {/* 操作按钮组 */}
       <section className="button-group">
         <Link to="/">
           <button>🎯 Start Quiz</button>
@@ -96,6 +105,12 @@ function ProfilePage() {
         <Link to="/learn">
           <button>📚 Learn Vocabulary</button>
         </Link>
+        <Link to="/culture">
+          <button className="btn btn-culture">🌐 Culture</button>
+        </Link>
+        <button onClick={handleLogout} className="btn btn-logout">
+          🚪 Logout
+        </button>
       </section>
     </div>
   );

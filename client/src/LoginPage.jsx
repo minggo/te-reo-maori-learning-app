@@ -7,11 +7,13 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
     try {
       const res = await fetch("/auth/login", {
         method: "POST",
@@ -22,13 +24,13 @@ export default function LoginPage() {
       if (!res.ok) {
         throw new Error(data.detail || "Login failed");
       }
-      // 用 user_id 作为“token”
-      const { user_id } = data;
-      localStorage.setItem("user_id", user_id);
-      // 登录后跳转
+      const { access_token } = data;
+      localStorage.setItem("user_id", access_token);
       navigate("/profile");
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +46,7 @@ export default function LoginPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={loading}
             required
           />
 
@@ -53,15 +56,22 @@ export default function LoginPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required
           />
 
-          <button type="submit" className="btn btn-login">
-            Login
+          <button
+            type="submit"
+            className="btn btn-login"
+            disabled={loading}
+          >
+            {loading ? 'Logging in…' : 'Login'}
           </button>
         </form>
         <div className="bottom-link">
-          <Link to="/register">Don't have an account? Register</Link>
+          <Link to="/register">
+            Don't have an account? Register
+          </Link>
         </div>
       </div>
     </div>

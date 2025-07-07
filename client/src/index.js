@@ -1,3 +1,4 @@
+// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -8,6 +9,7 @@ import ProfilePage from './ProfilePage';
 import LoginPage from './LoginPage';
 import RegisterPage from './RegisterPage';
 import RequireAuth from './RequireAuth';
+import CulturePage from './CulturePage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -24,6 +26,7 @@ root.render(
         {/* 相对子路由 */}
         <Route path="learn" element={<LearnPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="culture" element={<CulturePage />} />
       </Route>
 
       {/* 兜底：未匹配的全部重定向到 /login */}
