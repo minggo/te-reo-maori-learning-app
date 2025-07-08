@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Query
 from typing import List
+from bson import ObjectId
 from app.schema.word_schema import WordPublic
 from app.schema.user_learned_schema import UserLearnedWords
 from app.db.mongodb import db
@@ -79,7 +80,8 @@ async def get_vocabulary(
     n_mistake = max(1, int(limit * 0.2))  # At least 1 if there are any due
     selected_mistakes = due_mistake_ids[:n_mistake]
     if selected_mistakes:
-        cursor = db[COLLECTION_NAME].find({"_id": {"$in": selected_mistakes}})
+        object_ids = [ObjectId(w_id) for w_id in selected_mistakes]
+        cursor = db[COLLECTION_NAME].find({"_id": {"$in": object_ids}})
         async for word in cursor:
             results.append({
                 "id": str(word["_id"]),
@@ -93,7 +95,11 @@ async def get_vocabulary(
     # 2. Fill with unlearned words
     if len(results) < limit:
         learned_ids = await get_learned_ids(user_id)
-        unseen_cursor = db[COLLECTION_NAME].find({"_id": {"$nin": list(learned_ids | used_ids)}}).limit(limit - len(results))
+        # exclude anything we've already returned (used_ids),
+        # anything already learned, AND *all* mistake IDs
+        all_mistake_ids = set(due_mistake_ids)
+        exclude_object_ids = [ObjectId(s) for s in (learned_ids | used_ids | all_mistake_ids)]
+        unseen_cursor = db[COLLECTION_NAME].find({"_id": {"$nin": exclude_object_ids}}).limit(limit - len(results))
         async for word in unseen_cursor:
             results.append({
                 "id": str(word["_id"]),
@@ -106,18 +112,24 @@ async def get_vocabulary(
 
     # 3. If still not enough, fill with already learned (but not mistake) words
     if len(results) < limit:
-        fill_cursor = db[COLLECTION_NAME].find({"_id": {"$nin": list(used_ids)}}).limit(limit - len(results))
-        async for word in fill_cursor:
-            results.append({
-                "id": str(word["_id"]),
-                "maori": word["maori"],
-                "english": word["english"]
-            })
-            used_ids.add(str(word["_id"]))
-            if len(results) >= limit:
-                break
+        learned = await get_learned_ids(user_id)
+        available = [ObjectId(x) for x in learned if x not in used_ids]
+        if available:
+            cursor = db[COLLECTION_NAME]\
+                .find({"_id": {"$in": available}})\
+                .limit(limit - len(results))
+            async for word in cursor:
+                sid = str(word["_id"])
+                results.append({
+                    "id": sid,
+                    "maori": word["maori"],
+                    "english": word["english"],
+                })
+                used_ids.add(sid)
+                if len(results) >= limit:
+                    break
 
     # 4. Mark all returned words as learned for this user
-    await add_learned_ids(user_id, [r["id"] for r in results])
+    await add_learned_ids(user_id, list(used_ids))
 
     return results
