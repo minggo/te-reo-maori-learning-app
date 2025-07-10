@@ -1,6 +1,7 @@
 /* src/App.jsx */
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { shuffleArray } from './utils';
 import './App.css';
 
 function App() {
@@ -159,11 +160,6 @@ function App() {
       </div>
     </div>
   );
-}
-
-// 工具：打乱数组
-function shuffleArray(array) {
-  return [...array].sort(() => Math.random() - 0.5);
 }
 
 export default App;
